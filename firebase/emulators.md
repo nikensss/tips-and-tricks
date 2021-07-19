@@ -21,3 +21,21 @@ npm run build && firebase emulators:start --only auth,functions,firestore,storag
 Exporting changes will make our emulator tests kind of persistent. Any changes
 we make will be commited to the data the emulators will use to initialise
 firestore.
+
+# Example (partial) package.json
+```json
+{
+  "config": {
+    "backup_path": "gs://{{project-id}}.appspot.com/firestore"
+  },
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only auth,functions,firestore,storage --import ./emulators --export-on-exit",
+    "rm-local-backup": "rm -rf emulators/*",
+    "create-backup": "gcloud firestore export $npm_package_config_backup_path",
+    "download-backup": "gsutil -m cp -r $npm_package_config_backup_path ./emulators/",
+    "rm-cloud-backup": "gsutil rm -r $npm_package_config_backup_path",
+    "update-local-backup": "npm run rm-local-backup && npm run create-backup && npm run download-backup && npm run rm-cloud-backup"
+  }
+}
+```
